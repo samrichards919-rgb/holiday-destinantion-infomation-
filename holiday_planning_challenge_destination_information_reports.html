@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Holiday Planning Challenge: Destination Information Reports</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Font: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, .font-heading {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    /* Smooth custom scrollbar for horizontal destination pills */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+      }
+      .print-card {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Top Header Banner -->
+  <header class="bg-gradient-to-r from-sky-700 via-blue-700 to-indigo-800 text-white shadow-md no-print">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <div class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider bg-white/15 px-2.5 py-1 rounded-full mb-1">
+          <span>Stage 1: Destination Discovery</span>
+          <span>•</span>
+          <span>Year 5/6 Resource</span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight">Holiday Planning Challenge: Country Information Reports</h1>
+      </div>
+      <div class="flex items-center gap-2 self-start sm:self-center">
+        <button onclick="toggleRatingModal()" class="inline-flex items-center gap-1.5 bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold text-sm px-3.5 py-2 rounded-xl shadow-sm transition cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+          30-Point Rating Guide
+        </button>
+        <button onclick="window.print()" class="inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white font-medium text-sm px-3.5 py-2 rounded-xl transition cursor-pointer" title="Print current country report">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          <span class="hidden sm:inline">Print Page</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Destination Page Selector Navigation -->
+    <nav class="bg-sky-900/50 border-t border-white/10">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-xs font-medium text-sky-100">Select a Destination Page (11 Reports):</span>
+          <div class="flex items-center gap-1.5 text-xs">
+            <button onclick="filterCategory('all')" id="filter-all" class="filter-btn px-2.5 py-1 rounded-lg bg-white text-sky-900 font-semibold transition cursor-pointer">All (11)</button>
+            <button onclick="filterCategory('Cities & Culture')" id="filter-cities" class="filter-btn px-2.5 py-1 rounded-lg bg-white/10 text-white hover:bg-white/20 transition cursor-pointer">Cities & Culture</button>
+            <button onclick="filterCategory('Relaxation & Nature')" id="filter-relax" class="filter-btn px-2.5 py-1 rounded-lg bg-white/10 text-white hover:bg-white/20 transition cursor-pointer">Relaxation & Nature</button>
+            <button onclick="filterCategory('Adventure & Outdoors')" id="filter-adventure" class="filter-btn px-2.5 py-1 rounded-lg bg-white/10 text-white hover:bg-white/20 transition cursor-pointer">Adventure & Outdoors</button>
+          </div>
+        </div>
+        <div id="nav-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Single-Country Report Viewport -->
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <div id="report-container" class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden print-card">
+      <!-- Dynamic destination page content injected here -->
+    </div>
+
+    <!-- Bottom Page Switcher -->
+    <div class="mt-6 flex items-center justify-between gap-4 no-print">
+      <button id="prev-btn" onclick="navigateRelative(-1)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-100 transition shadow-sm cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        <span id="prev-label">Previous Country</span>
+      </button>
+      <span id="page-counter" class="text-xs sm:text-sm font-medium text-slate-500">Page 1 of 11</span>
+      <button id="next-btn" onclick="navigateRelative(1)" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-600 text-white font-semibold text-sm hover:bg-sky-700 transition shadow-sm cursor-pointer">
+        <span id="next-label">Next Country</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 px-4 text-center text-xs text-slate-500 no-print">
+    Holiday Planning Challenge • Family of 4 (2 Adults, 2 Children) • 7 Nights Overseas • $15,000 AUD Total Budget (70% Rule: Flights + Hotels &le; $10,500)
+  </footer>
+
+  <!-- 30-Point Rating Guide Modal -->
+  <div id="rating-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200">
+      <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between z-10">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-600">Step 4 Evaluation Tool</span>
+          <h2 class="text-xl font-extrabold text-slate-900">Destination Rating Guide (Score Out of 30)</h2>
+        </div>
+        <button onclick="toggleRatingModal()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <p class="text-sm text-slate-600">Rate your destination from <strong>1 to 5</strong> in each of the 6 categories below. Always back up your score with a <strong>"Score + Proof"</strong> fact from the information report!</p>
+        <div class="overflow-x-auto rounded-2xl border border-slate-200">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                <th class="p-3 font-bold">Category</th>
+                <th class="p-3 font-bold">Guiding Questions</th>
+                <th class="p-3 font-bold text-rose-700">1 Point (Poor Fit)</th>
+                <th class="p-3 font-bold text-amber-700">3 Points (Okay Fit)</th>
+                <th class="p-3 font-bold text-emerald-700">5 Points (Ideal Fit)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr>
+                <td class="p-3 font-bold text-slate-900">1. Travel Time & Geography</td>
+                <td class="p-3 text-slate-600">How far is it from Adelaide? Are there direct flights, or will long layovers eat into our 7-night holiday?</td>
+                <td class="p-3 text-slate-600">Very far (18+ hrs), multiple layovers, loses 2+ days to flying.</td>
+                <td class="p-3 text-slate-600">Medium distance (9–14 hrs) with 1 easy stopover.</td>
+                <td class="p-3 text-slate-600">Close to Adelaide (under 8 hrs) or a direct flight available.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-900">2. Climate & Season</td>
+                <td class="p-3 text-slate-600">What is the weather like in our chosen window (June/July or Sept/Oct)? Will rain or extreme heat/cold ruin plans?</td>
+                <td class="p-3 text-slate-600">Extreme weather (monsoon rains, extreme heat/cold) in our window.</td>
+                <td class="p-3 text-slate-600">Mixed weather; some rain or slightly too hot/cold.</td>
+                <td class="p-3 text-slate-600">Ideal, comfortable weather for sightseeing and outdoor activities.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-900">3. Culture & Food</td>
+                <td class="p-3 text-slate-600">How easy is it to communicate, eat, and get around? Are there exciting cultural experiences for kids?</td>
+                <td class="p-3 text-slate-600">Major language barrier and few familiar/kid-friendly foods.</td>
+                <td class="p-3 text-slate-600">English spoken in tourist spots; good mix of local and familiar food.</td>
+                <td class="p-3 text-slate-600">Very easy to communicate and navigate; exciting culture and food.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-900">4. Affordability (Economy)</td>
+                <td class="p-3 text-slate-600">How strong is the AUD there? Are daily costs cheap or expensive, and do flights + hotels stay under $10,500?</td>
+                <td class="p-3 text-slate-600">Expensive currency; daily costs high; flights/hotels exceed $10,500.</td>
+                <td class="p-3 text-slate-600">Moderate prices; fits $15,000 budget if we spend carefully.</td>
+                <td class="p-3 text-slate-600">Great exchange rate; meals, transport, and tickets very affordable.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-900">5. Attractions & Activities</td>
+                <td class="p-3 text-slate-600">Are there at least three standout landmarks or activities that both adults and kids will enjoy?</td>
+                <td class="p-3 text-slate-600">Few family-friendly attractions, or activities are repetitive.</td>
+                <td class="p-3 text-slate-600">A few good attractions, though some suit adults or younger kids only.</td>
+                <td class="p-3 text-slate-600">Packed with diverse, exciting landmarks and activities for all ages.</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-bold text-slate-900">6. Family Suitability & Safety</td>
+                <td class="p-3 text-slate-600">How safe and easy is it to travel with children? Are visas, health rules, and transport simple?</td>
+                <td class="p-3 text-slate-600">Complex visas/health rules, or tricky/unsafe transport for kids.</td>
+                <td class="p-3 text-slate-600">Safe in main tourist areas; requires basic planning for visas/transport.</td>
+                <td class="p-3 text-slate-600">Extremely safe, clean, easy public transport, simple entry rules.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Complete dataset of all 11 Year 5/6 Destination Information Reports
+    const destinations = [
+      {
+        id: "japan",
+        country: "Japan",
+        city: "Tokyo",
+        flag: "🇯🇵",
+        style: "Cities & Culture",
+        themeColor: "from-rose-600 to-indigo-800",
+        badgeColor: "bg-rose-100 text-rose-800",
+        imageUrl: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/be123c/ffffff?text=Japan+(Tokyo)+-+Cities+%26+Culture",
+        distance: "7,800 km north of Adelaide",
+        flightTime: "13–16 hours (1 stopover)",
+        currencyShort: "JPY (¥) • $1 AUD ≈ ¥102",
+        visaShort: "No visa fee for short stays",
+        overview: "Japan is an island nation in East Asia made up of four main islands and thousands of smaller ones. Because Japan is very mountainous, most of its 124 million people live in flat coastal areas where huge cities have been built. Its capital city, Tokyo, is one of the largest and busiest cities in the world, famous for its bright neon lights, tall skyscrapers, and peaceful ancient temples.",
+        climateIntro: "Japan has four distinct seasons, and its weather is the opposite of Australia’s.",
+        juneJuly: "When it is winter in Adelaide, it is summer in Japan. June is part of Japan's rainy season (Tsuyu), bringing warm days and frequent rain showers. By July, the weather becomes very hot and humid, with temperatures often reaching 30°C to 35°C. Families visiting in July need to drink plenty of water, wear light clothing, and plan indoor activities during the hottest part of the afternoon.",
+        septOct: "September is the end of summer and can still be warm, with a slight chance of tropical storms (typhoons). October is one of the best months for families to visit. The air becomes crisp, sunny, and comfortable (15°C to 22°C), and the leaves on the trees begin turning bright red, orange, and gold.",
+        cultureIntro: "Japanese culture blends ancient traditions with futuristic technology. Visitors will notice that cities are remarkably clean, safe, and quiet on public transport.",
+        language: "The official language is Japanese. While signs at major train stations and tourist spots are in English, fewer locals speak fluent English compared to Australia, so learning basic words like Konnichiwa (hello) and Arigatou (thank you) is very helpful.",
+        food: "Japanese food is world-famous and generally very kid-friendly. Popular dishes include sushi, ramen (noodle soup), udon, katsu curry, and crispy tempura. Convenience stores (like 7-Eleven and Lawson) are on almost every corner and sell fresh, inexpensive snacks and meals.",
+        etiquette: "People bow instead of shaking hands when greeting each other. Visitors must always take off their shoes before entering traditional homes, temples, and some restaurants. Tipping is not practised in Japan and can actually confuse staff.",
+        economyIntro: "Japan has one of the world’s largest and most advanced economies, famous for robotics, car manufacturing, and electronics. For Australian families, Japan offers good value for money once you arrive.",
+        currency: "The Japanese Yen (JPY or ¥). One Australian Dollar ($1 AUD) is worth roughly 100 to 105 Yen, meaning prices look like big numbers (for example, a ¥1,000 lunch is actually only about $9.50 to $10 AUD).",
+        transport: "Japan is famous for its Shinkansen (bullet trains), which travel at over 300 km/h, as well as clean, punctual city subways. Local subway rides cost only a few dollars per trip, though long-distance bullet train tickets for a family of four can add up quickly.",
+        dailySpending: "While return flights for a family of four and central Tokyo hotel rooms (which are often smaller than Australian hotel rooms) will take up a large chunk of the budget, everyday costs are quite affordable. A casual family meal at a noodle shop or curry house costs around $10 to $15 AUD per person, and many parks and shrines are free to enter.",
+        safety: "Japan is consistently ranked as one of the safest countries in the world for tourists, with very low crime rates. Australian citizens do not need to pay for a tourist visa for short holidays.",
+        attractions: ["Tokyo Disneyland & DisneySea", "teamLab Planets Digital Art Museum", "Ueno Zoo & Parks", "Mount Fuji Day Trip"]
+      },
+      {
+        id: "singapore",
+        country: "Singapore",
+        city: "Singapore",
+        flag: "🇸🇬",
+        style: "Cities & Culture",
+        themeColor: "from-red-600 to-amber-700",
+        badgeColor: "bg-rose-100 text-rose-800",
+        imageUrl: "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/dc2626/ffffff?text=Singapore+-+Cities+%26+Culture",
+        distance: "5,400 km northwest of Adelaide",
+        flightTime: "7.5 hours (Direct flight)",
+        currencyShort: "SGD (S$) • $1 AUD ≈ S$0.88",
+        visaShort: "Visa-free (free SG Arrival Card)",
+        overview: "Singapore is a tiny, ultra-modern island city-state at the southern tip of the Malay Peninsula in Southeast Asia. Even though the whole country is smaller than Kangaroo Island, it is home to nearly 6 million people and is famous as a 'City in a Garden' because of its futuristic buildings, rooftop parks, and lush greenery.",
+        climateIntro: "Because Singapore sits almost right on the Equator, it has a hot, humid tropical climate all year round with no spring, summer, autumn, or winter.",
+        juneJuly: "Warm and sunny, with daily temperatures around 25°C to 32°C. While brief afternoon tropical showers can happen any time of year, June and July are generally drier than the end of the year.",
+        septOct: "Very similar temperatures (25°C to 32°C) with high humidity. Families should pack light summer clothes, hats, sunscreen, and a small umbrella for sudden rain showers.",
+        cultureIntro: "Singapore is a vibrant mix of Chinese, Malay, Indian, and Western cultures, which means visitors get to experience many different traditions, festivals, and foods in one small place.",
+        language: "English is one of Singapore's four official languages (alongside Mandarin, Malay, and Tamil), so almost everyone speaks English and all signs are in English.",
+        food: "Eating out is a huge part of local life. Families can visit famous open-air food courts called hawker centres, which serve cheap, delicious dishes like chicken rice, satay skewers, noodles, and roti prata.",
+        etiquette: "Singapore is famous for its strict laws that keep the city spotless and safe—littering, jaywalking, and eating or drinking on the train carry heavy fines, and chewing gum cannot be sold in shops.",
+        economyIntro: "Singapore is one of the wealthiest financial and shipping hubs in the world. While hotels can be pricey, daily transport and food are very budget-friendly.",
+        currency: "The Singapore Dollar (SGD or S$). One Australian Dollar ($1 AUD) buys roughly $0.85 to $0.90 SGD, so prices look fairly similar to Australia.",
+        transport: "Singapore’s MRT (Mass Rapid Transit) train system is clean, air-conditioned, fast, and reaches almost every tourist spot for just a few dollars per ride.",
+        dailySpending: "Family hotel rooms in Singapore are expensive and will take up a large part of the budget, but a filling family meal at a hawker centre costs only $5 to $10 AUD per person.",
+        safety: "Singapore is widely considered one of the easiest and safest destinations in the world for families with children. Australian citizens do not need a tourist visa for short visits (though families must fill out a free online SG Arrival Card before landing).",
+        attractions: ["Universal Studios Singapore", "Gardens by the Bay", "Singapore Zoo & Night Safari", "Jewel Changi Airport Waterfall"]
+      },
+      {
+        id: "uk",
+        country: "United Kingdom",
+        city: "London",
+        flag: "🇬🇧",
+        style: "Cities & Culture",
+        themeColor: "from-blue-800 to-red-700",
+        badgeColor: "bg-rose-100 text-rose-800",
+        imageUrl: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/1e40af/ffffff?text=United+Kingdom+(London)+-+Cities+%26+Culture",
+        distance: "16,300 km northwest of Adelaide",
+        flightTime: "21–24 hours (1–2 stopovers)",
+        currencyShort: "GBP (£) • $1 AUD ≈ £0.51",
+        visaShort: "Online UK ETA required (£20)",
+        overview: "The United Kingdom (UK) is an island nation off the northwestern coast of Europe, made up of England, Scotland, Wales, and Northern Ireland. Its capital city, London, sits on the River Thames in southern England and is one of the world’s most famous historic and cultural capitals, home to royal palaces, double-decker buses, and world-famous museums.",
+        climateIntro: "London is in the Northern Hemisphere, so its seasons are the reverse of Adelaide’s. Its weather is famously changeable, meaning you can experience sunshine and rain in the same afternoon.",
+        juneJuly: "This is peak summer in London, with warm, pleasant temperatures averaging 18°C to 24°C and very long daylight hours (it often stays light until 9:30 pm).",
+        septOct: "September is mild (15°C to 20°C), while October turns crisp and cool (10°C to 15°C) with golden autumn leaves in the royal parks and a higher chance of rain.",
+        cultureIntro: "Because Australia shares much of its history with Britain, Australian families usually feel right at home in London, though the city is much older and busier than Adelaide.",
+        language: "English is spoken everywhere, though visitors will hear hundreds of different accents and languages across the city.",
+        food: "Traditional British favourites include fish and chips, Sunday roasts, meat pies, and afternoon tea with scones. Because London is so multicultural, it also has incredible Indian curries, street food markets, and familiar chains.",
+        etiquette: "Politeness and queuing (lining up patiently) are very important in British culture. On the London Underground escalators, visitors must always stand on the right so people in a hurry can walk past on the left.",
+        economyIntro: "The UK has a major global economy, and London is one of the most expensive cities in the world for tourists, especially when converting Australian Dollars.",
+        currency: "The British Pound Sterling (GBP or £). One Australian Dollar ($1 AUD) is only worth about £0.51, which means items cost roughly double what the price tag shows in AUD.",
+        transport: "London’s famous red buses and the Tube (underground subway) connect the whole city. Children under 11 travel free on most London transport when accompanied by a paying adult.",
+        dailySpending: "Long-haul flights, central London hotels, and restaurant meals are very expensive. However, London has a massive bonus for families: almost all of its major national museums are completely free to enter!",
+        safety: "London is generally safe for families, though busy tourist areas require keeping an eye on bags and staying together in crowds. Australian travellers must apply online for a UK Electronic Travel Authorisation (ETA) before flying, which costs £20 (around $40 AUD) per person.",
+        attractions: ["Natural History Museum (Free)", "Tower of London & Crown Jewels", "Buckingham Palace", "Warner Bros. Harry Potter Studio Tour"]
+      },
+      {
+        id: "italy",
+        country: "Italy",
+        city: "Rome",
+        flag: "🇮🇹",
+        style: "Cities & Culture",
+        themeColor: "from-emerald-700 to-rose-700",
+        badgeColor: "bg-rose-100 text-rose-800",
+        imageUrl: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/047857/ffffff?text=Italy+(Rome)+-+Cities+%26+Culture",
+        distance: "15,200 km northwest of Adelaide",
+        flightTime: "20–23 hours (1 stopover)",
+        currencyShort: "EUR (€) • $1 AUD ≈ €0.61",
+        visaShort: "Visa-free under 90 days",
+        overview: "Italy is a boot-shaped peninsula in Southern Europe stretching into the Mediterranean Sea, known for its rolling hills, sunny coastlines, and snow-capped mountains in the north. Its capital city, Rome, is known as the 'Eternal City' because it was the centre of the ancient Roman Empire and feels like a giant open-air museum filled with ancient ruins, fountains, and piazzas (town squares).",
+        climateIntro: "Rome has a classic Mediterranean climate—very similar to Adelaide’s weather, except in the opposite months of the year.",
+        juneJuly: "Summer in Rome is hot, dry, and very sunny, with temperatures frequently climbing to 30°C to 35°C. Because July is peak tourist season, famous landmarks can be very crowded and hot for walking around.",
+        septOct: "This is widely considered the best time to visit Rome. The summer heat fades into warm, sunny days averaging 20°C to 26°C in September and 17°C to 22°C in October, with fewer crowds.",
+        cultureIntro: "Italian culture revolves around family, history, art, and enjoying good food together. Children are warmly welcomed almost everywhere in Italy.",
+        language: "The official language is Italian. Staff at hotels, major landmarks, and tourist restaurants speak English, though learning simple greetings like Ciao (hello/goodbye) and Grazie (thank you) goes a long way.",
+        food: "Rome is a dream destination for kids who love food! Real Italian pizza, pasta (like carbonara and bolognese), supplì (fried rice balls), and authentic gelato (Italian ice cream) are found on every street.",
+        etiquette: "Many shops close for a few hours in the middle of the afternoon for a break (riposo), and locals usually eat dinner late (around 8:00 pm or 9:00 pm). When visiting churches like St Peter’s Basilica, visitors must cover their shoulders and knees.",
+        economyIntro: "Italy is one of Europe’s largest economies, with tourism, fashion, design, and food production playing major roles.",
+        currency: "The Euro (EUR or €). One Australian Dollar ($1 AUD) buys roughly €0.61, so prices in Euros are higher than they first appear in AUD.",
+        transport: "Rome has a metro (subway), buses, and trams, though most historic sights in the city centre are close enough to explore on foot.",
+        dailySpending: "Flights and family rooms in central Rome are costly, and popular landmarks charge entry fees. However, everyday food like takeaway pizza slices, bakery snacks, and gelato are quite affordable, and tossing a coin into the Trevi Fountain is free.",
+        safety: "Rome is safe and very welcoming to families, though busy train stations and tourist crowds can attract pickpockets, so families need to keep valuables secure. Australians do not need a visa for short stays under 90 days, though border officers take fingerprints and a photo on arrival.",
+        attractions: ["The Ancient Colosseum", "Vatican City & St Peter's Basilica", "The Trevi Fountain", "Roman Gladiator School"]
+      },
+      {
+        id: "fiji",
+        country: "Fiji",
+        city: "Nadi & Coral Coast",
+        flag: "🇫🇯",
+        style: "Relaxation & Nature",
+        themeColor: "from-cyan-600 to-teal-700",
+        badgeColor: "bg-teal-100 text-teal-800",
+        imageUrl: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/0891b2/ffffff?text=Fiji+-+Relaxation+%26+Nature",
+        distance: "3,900 km northeast of Adelaide",
+        flightTime: "5 hours (Direct flight)",
+        currencyShort: "FJD (FJ$) • $1 AUD ≈ FJ$1.53",
+        visaShort: "Visa-free up to 4 months",
+        overview: "Fiji is an archipelago (a group of islands) in the South Pacific Ocean, made up of more than 330 tropical islands surrounded by coral reefs and crystal-clear turquoise lagoons. Most international flights land at Nadi on the main island of Viti Levu, where families either stay at beachfront resorts or catch a short boat ride out to smaller islands like the Mamanucas.",
+        climateIntro: "Fiji has a warm tropical climate all year round, divided into a wet season (November to April) and a dry season (May to October).",
+        juneJuly: "This is Fiji’s 'winter,' which means sunny skies, low humidity, cool ocean breezes, and temperatures averaging 26°C to 28°C. It is ideal weather for swimming and snorkelling.",
+        septOct: "Still part of the dry season, with slightly warmer days (27°C to 30°C) and calm, warm ocean water before the summer rains begin in November.",
+        cultureIntro: "Fijian culture is famous around the world for its warmth, music, and hospitality. Visitors are greeted everywhere with a huge smile and a cheerful 'Bula!' (hello).",
+        language: "English, Fijian, and Fiji Hindi are the official languages, so English is spoken fluently everywhere.",
+        food: "Traditional Fijian food uses fresh seafood, coconut milk, taro, and tropical fruits like pineapple and papaya. A lovo is a special feast cooked in an underground earth oven. Resorts also serve plenty of familiar Western meals for kids.",
+        etiquette: "Fijians treat children like VIPs, and most resorts have famous 'Kids' Clubs' run by friendly local staff. If visiting a traditional Fijian village, visitors must dress modestly (covering shoulders and knees) and take off hats and sunglasses as a sign of respect.",
+        economyIntro: "Tourism, sugar, bottled water, and fishing are the main parts of Fiji’s economy. For Australian families, Fiji is moderately priced—affordable outside resorts, though resort dining adds up.",
+        currency: "The Fijian Dollar (FJD or FJ$). One Australian Dollar ($1 AUD) is worth roughly $1.53 FJD, giving Australians good purchasing power.",
+        transport: "Taxis, resort shuttle buses, and island catamaran ferries are the main ways tourists get around.",
+        dailySpending: "Flights are relatively short and affordable, and many resorts offer 'kids stay and eat free' deals. However, food and drinks inside island resorts are priced similarly to Australian restaurants, so budgeting carefully for meals is important.",
+        safety: "Fiji is one of the easiest, most relaxing overseas holidays for families with children of any age. Australian citizens do not need a tourist visa for stays up to four months.",
+        attractions: ["Coral Reef Snorkelling", "Mamanuca Island-Hopping Cruise", "Rainforest Zip-lining", "Traditional Village & Fire-Dancing Show"]
+      },
+      {
+        id: "bali",
+        country: "Indonesia",
+        city: "Bali",
+        flag: "🇮🇩",
+        style: "Relaxation & Nature",
+        themeColor: "from-emerald-600 to-teal-800",
+        badgeColor: "bg-teal-100 text-teal-800",
+        imageUrl: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/059669/ffffff?text=Indonesia+(Bali)+-+Relaxation+%26+Nature",
+        distance: "3,700 km northwest of Adelaide",
+        flightTime: "5.5 hours (Direct flight)",
+        currencyShort: "IDR (Rp) • $1 AUD ≈ 12,000 Rp",
+        visaShort: "Visa on Arrival (~$50 AUD) + Levy",
+        overview: "Bali is a famous tropical island in Indonesia, located just south of the Equator between the islands of Java and Lombok. Known as the 'Island of the Gods,' Bali has dramatic volcanic mountains, lush green terraced rice paddies in the inland town of Ubud, and warm sandy beaches along the southern coast in areas like Seminyak, Sanur, and Nusa Dua.",
+        climateIntro: "Bali has a tropical monsoon climate with warm temperatures all year round (usually 27°C to 31°C) and two main seasons: dry and wet.",
+        juneJuly: "This is the middle of Bali’s dry season, bringing sunny skies, lower humidity, and steady ocean breezes—great for beach days and outdoor sightseeing.",
+        septOct: "September remains dry and sunny, while October brings slightly higher humidity and the occasional late-afternoon tropical rain shower as the wet season approaches.",
+        cultureIntro: "Unlike most of Indonesia, which is predominantly Muslim, Bali’s culture is shaped by Balinese Hinduism. Visitors see small woven palm-leaf offerings (canang sari) filled with flowers and incense placed outside shops, temples, and homes every morning.",
+        language: "Indonesian and Balinese are the local languages, but English is widely spoken in hotels, shops, and tourist areas.",
+        food: "Indonesian food is flavourful and inexpensive. Popular dishes include nasi goreng (fried rice), mie goreng (fried noodles), chicken satay with peanut sauce, and fresh tropical fruit smoothies.",
+        etiquette: "Always use your right hand when handing money or objects to people (the left hand is considered unclean), never touch anyone on the top of the head, and wear a sarong and sash when entering Hindu temples.",
+        economyIntro: "Bali’s economy relies heavily on tourism, agriculture, and handicrafts. Because the cost of living is much lower than in Australia, Bali is one of the most affordable overseas destinations for families.",
+        currency: "The Indonesian Rupiah (IDR or Rp). One Australian Dollar ($1 AUD) equals roughly 12,000 Rupiah! Students will notice huge numbers on price tags—for example, a 60,000 Rupiah meal is only about $5 AUD.",
+        transport: "Traffic in southern Bali can be very busy. Families usually get around using private hired drivers for the day (which are very affordable) or ride-share apps like Grab and Gojek.",
+        dailySpending: "Flights, family villas with private pools, restaurant meals, and activities cost much less than in Australia, making it easy to stay well within a $15,000 budget.",
+        safety: "Bali is hugely popular with Australian families, though parents need to be careful with road traffic, strong ocean currents, and drinking only bottled water (to avoid 'Bali belly'). Australian travellers must pay for a Visa on Arrival (500,000 IDR, about $45–$50 AUD per person) plus a Bali Tourist Levy (150,000 IDR, about $15 AUD per person).",
+        attractions: ["Waterbom Bali Waterpark", "Sacred Monkey Forest in Ubud", "Bali Safari & Marine Park", "Beginner Surf Lessons at Sanur/Kuta"]
+      },
+      {
+        id: "hawaii",
+        country: "United States",
+        city: "Hawaii (Oahu)",
+        flag: "🇺🇸",
+        style: "Relaxation & Nature",
+        themeColor: "from-sky-600 to-indigo-700",
+        badgeColor: "bg-teal-100 text-teal-800",
+        imageUrl: "https://images.unsplash.com/photo-1507876466758-bc54f384809c?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/0284c7/ffffff?text=United+States+(Hawaii)+-+Relaxation+%26+Nature",
+        distance: "9,400 km northeast of Adelaide",
+        flightTime: "13–16 hours (1 stopover)",
+        currencyShort: "USD (US$) • $1 AUD ≈ US$0.66",
+        visaShort: "Online US ESTA required",
+        overview: "Hawaii is the 50th state of the United States and the only one located entirely in the tropics, sitting in the middle of the Pacific Ocean. It is made up of a chain of volcanic islands, with most visitors flying into Honolulu on the island of Oahu (home to famous Waikiki Beach) or visiting the 'Big Island' of Hawaii to see active volcanoes.",
+        climateIntro: "Hawaii enjoys warm, sunny weather all year round, cooled by gentle Pacific trade winds.",
+        juneJuly: "Warm and dry, with daytime temperatures around 28°C to 31°C and warm ocean water perfect for swimming and surfing.",
+        septOct: "Still very warm (28°C to 31°C) with plenty of sunshine, though October can bring a few more passing rain showers.",
+        cultureIntro: "Hawaiian culture blends native Polynesian traditions with American lifestyle and strong Asian influences. The spirit of 'Aloha'—meaning love, peace, and kindness—is central to daily life.",
+        language: "English and Hawaiian (ʻŌlelo Hawaiʻi) are the two official languages. Everyone speaks English, and visitors quickly learn local words like Aloha (hello/goodbye) and Mahalo (thank you).",
+        food: "Hawaiian food includes poke (marinated raw fish bowls), kalua slow-roasted pork, shaved ice (rainbow-flavoured ice treats), pineapple dishes, and classic American burgers and pancakes.",
+        etiquette: "Traditional Hawaiian hula dancing and luau feasts tell stories of island history and nature. Visitors are expected to respect local wildlife—it is illegal to touch or get too close to Hawaiian green sea turtles and monk seals on the beach.",
+        economyIntro: "Tourism and the US military are the biggest parts of Hawaii’s economy. Because almost everything must be shipped across the Pacific Ocean to the islands, Hawaii is an expensive destination for Australian families.",
+        currency: "The United States Dollar (USD or US$). One Australian Dollar ($1 AUD) buys only around $0.66 USD, making US prices feel noticeably higher once converted.",
+        transport: "On Oahu, families can use TheBus (public buses), Waikiki trolleys, or rent a car to explore the island’s famous North Shore.",
+        dailySpending: "Hotels in Waikiki, restaurant meals, and attraction tickets are quite costly. In the US, it is also mandatory etiquette to add a 15% to 20% tip on top of restaurant bills and tour prices, which adds extra cost to the budget.",
+        safety: "Hawaii is a very safe, clean, and easy destination for families, offering American conveniences alongside tropical island scenery. Australians do not need a traditional visa for short holidays, but must apply online for an ESTA (Electronic System for Travel Authorization) before flying.",
+        attractions: ["Waikiki Beach & Surf Lessons", "Pearl Harbor Historic Sites", "Hanauma Bay Snorkelling Reserve", "Kualoa Ranch (Jurassic Park Filming Site)"]
+      },
+      {
+        id: "canada",
+        country: "Canada",
+        city: "Vancouver",
+        flag: "🇨🇦",
+        style: "Relaxation & Nature",
+        themeColor: "from-red-700 to-slate-800",
+        badgeColor: "bg-teal-100 text-teal-800",
+        imageUrl: "https://images.unsplash.com/photo-1559511260-66a654ae982a?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/b91c1c/ffffff?text=Canada+(Vancouver)+-+Relaxation+%26+Nature",
+        distance: "13,800 km northeast of Adelaide",
+        flightTime: "17–20 hours (1 stopover)",
+        currencyShort: "CAD (C$) • $1 AUD ≈ C$0.95",
+        visaShort: "Online Canada eTA (C$7)",
+        overview: "Canada is the second-largest country in the world by land area, stretching across the northern half of North America. Located on Canada’s Pacific west coast, Vancouver is a coastal seaport city surrounded by ocean beaches, towering evergreen forests, and the snow-dusted Coast Mountains.",
+        climateIntro: "Because Canada is in the Northern Hemisphere, its seasons are the opposite of Adelaide’s. Vancouver has one of the mildest climates in Canada, though it gets plenty of rain in autumn and winter.",
+        juneJuly: "This is the absolute best time to visit Vancouver. Days are warm, sunny, and dry (20°C to 25°C), with long daylight hours ideal for outdoor exploring.",
+        septOct: "September is crisp and pleasant (16°C to 20°C), while October becomes much cooler (10°C to 14°C) and rainier as the leaves turn bright red and gold.",
+        cultureIntro: "Canada is famous for being polite, welcoming, and multicultural, with deep Indigenous First Nations heritage alongside British, French, and Asian influences.",
+        language: "Canada has two official languages—English and French—though English is the main language spoken in Vancouver.",
+        food: "Canadian favourites include pancakes with real maple syrup, poutine (hot chips topped with cheese curds and gravy), fresh Pacific salmon, and Tim Hortons doughnuts.",
+        etiquette: "Canadians are famously friendly and quick to say 'sorry' or 'thank you.' Like the US, tipping 15% to 20% at restaurants is expected, and sales tax is added at the cash register rather than included on price tags.",
+        economyIntro: "Canada has a strong, modern economy built on natural resources, forestry, technology, and tourism. For Australians, Canada is noticeably more affordable than the United States.",
+        currency: "The Canadian Dollar (CAD or C$). One Australian Dollar ($1 AUD) is worth roughly $0.95 CAD—almost one-for-one—which makes converting prices very easy for students!",
+        transport: "Vancouver has a clean, easy-to-use public transport network called TransLink, including the automated SkyTrain, buses, and SeaBus passenger ferries.",
+        dailySpending: "Long-haul flights and downtown Vancouver hotels take up a large portion of the budget, though park visits, ferry rides, and casual meals are reasonably priced.",
+        safety: "Vancouver is consistently ranked as one of the most liveable, clean, and safe cities in the world for families. Australians do not need a visa for short visits, but must apply online for a low-cost eTA (Electronic Travel Authorization, C$7) before flying.",
+        attractions: ["Stanley Park Seawall & Aquarium", "Capilano Suspension Bridge", "Granville Island Public Market", "Grouse Mountain Gondola & Grizzly Bears"]
+      },
+      {
+        id: "nz",
+        country: "New Zealand",
+        city: "Queenstown",
+        flag: "🇳🇿",
+        style: "Adventure & Outdoors",
+        themeColor: "from-indigo-700 to-sky-700",
+        badgeColor: "bg-amber-100 text-amber-800",
+        imageUrl: "https://images.unsplash.com/photo-1507699622108-4be3abd695ad?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/4338ca/ffffff?text=New+Zealand+(Queenstown)+-+Adventure+%26+Outdoors",
+        distance: "2,800 km southeast of Adelaide",
+        flightTime: "7–9 hours (1 short stopover)",
+        currencyShort: "NZD (NZ$) • $1 AUD ≈ NZ$1.22",
+        visaShort: "No visa required for Australians",
+        overview: "New Zealand is an island nation in the southwestern Pacific Ocean made up of two main islands: the North Island and the South Island. Queenstown sits on the shores of crystal-clear Lake Wakatipu on the South Island, surrounded by dramatic, jagged peaks known as the Southern Alps. It is famous around the world as the 'Adventure Capital of the World.'",
+        climateIntro: "New Zealand is in the Southern Hemisphere just like Australia, so its seasons match Adelaide’s—except Queenstown is much further south and much colder!",
+        juneJuly: "Winter is peak ski season in Queenstown! Daytime temperatures sit around 0°C to 8°C, with snow covering the surrounding mountains. Families need heavy winter coats, gloves, and thermal layers.",
+        septOct: "Spring brings crisp, sunny days (10°C to 17°C) with snow still visible on the mountain tops while valleys bloom with spring flowers.",
+        cultureIntro: "New Zealand culture blends British heritage with vibrant indigenous Māori traditions, known for the haka (traditional war dance) and strong respect for nature (kaitiakitanga).",
+        language: "English and Te Reo Māori are official languages. Everyone speaks English, and visitors will often hear Māori greetings like 'Kia ora' (hello/be well).",
+        food: "New Zealand is famous for its dairy products, lamb, seafood, meat pies, and hokey pokey ice cream (vanilla ice cream with honeycomb toffee pieces).",
+        etiquette: "New Zealanders ('Kiwis') are laid-back, outdoorsy, and passionate about protecting their environment—visitors must always take rubbish with them and stick to marked walking tracks. Tipping is not expected.",
+        economyIntro: "New Zealand’s economy relies on tourism, dairy farming, wool, fruit growing, and film production (many scenes from The Lord of the Rings were filmed around Queenstown).",
+        currency: "The New Zealand Dollar (NZD or NZ$). One Australian Dollar ($1 AUD) buys roughly $1.22 NZD, meaning Australians get about 20% extra value when spending there!",
+        transport: "Queenstown is compact and easy to walk around, with local Orbus buses connecting the airport, town centre, and nearby Arrowtown. Many families also rent a car.",
+        dailySpending: "Short flights and a favourable exchange rate help keep costs down, though adventure activities (like jet boating, skiing, and gondolas) can be pricey.",
+        safety: "New Zealand is one of the safest, easiest, and most welcoming countries for Australian families. Australian citizens do not need a visa or travel authorization to visit New Zealand—just a valid passport!",
+        attractions: ["Skyline Gondola & Downhill Luge", "Shotover Jet Boat Rides", "Kiwi Park Wildlife Sanctuary", "The Remarkables Skiing & Milford Sound"]
+      },
+      {
+        id: "costarica",
+        country: "Costa Rica",
+        city: "Arenal & Manuel Antonio",
+        flag: "🇨🇷",
+        style: "Adventure & Outdoors",
+        themeColor: "from-emerald-700 to-lime-700",
+        badgeColor: "bg-amber-100 text-amber-800",
+        imageUrl: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/15803d/ffffff?text=Costa+Rica+-+Adventure+%26+Outdoors",
+        distance: "14,700 km east of Adelaide",
+        flightTime: "22–27 hours (2+ stopovers)",
+        currencyShort: "CRC (₡) / USD • $1 AUD ≈ ₡296",
+        visaShort: "Visa-free (US ESTA if transiting USA)",
+        overview: "Costa Rica is a rugged, rainforest-covered country in Central America, bordered by Nicaragua to the north, Panama to the south, the Caribbean Sea to the east, and the Pacific Ocean to the west. Even though it is smaller than Tasmania, Costa Rica contains nearly 5% of the world's biodiversity, making it famous for volcanoes, cloud forests, wildlife, and eco-adventures.",
+        climateIntro: "Costa Rica has a tropical climate with two main seasons: the dry season (December to April) and the 'green' or rainy season (May to November).",
+        juneJuly: "Temperatures are warm (24°C to 30°C), with sunny mornings followed by heavy afternoon tropical rain showers. Everything is lush and green, and there are fewer tourists.",
+        septOct: "October is the wettest month of the year on Costa Rica’s Pacific coast, bringing heavy daily rain, muddy trails, and humid temperatures (24°C to 29°C).",
+        cultureIntro: "Costa Ricans call themselves 'Ticos' and live by the national motto 'Pura Vida' (meaning 'pure life'), which stands for happiness, gratitude, and taking life easy. Costa Rica is also famous for having no standing army since 1948, spending that money on education and conservation instead.",
+        language: "The official language is Spanish. Guides at eco-lodges and national parks speak English, though English is less common in small rural towns.",
+        food: "Local meals are fresh, healthy, and mild (not spicy). The national dish is gallo pinto (rice and beans), served alongside grilled chicken, fried sweet plantains, and fresh tropical fruit.",
+        etiquette: "Ticos are warm, polite, and relaxed—schedules often run on 'Tico time' (a little slower than in Australia). Visitors must never feed wild monkeys or touch wildlife in national parks.",
+        economyIntro: "Eco-tourism, coffee, bananas, pineapples, and medical technology are the main drivers of Costa Rica’s economy. It is more expensive than other Central American countries because of its focus on sustainable tourism.",
+        currency: "The Costa Rican Colón (CRC or ₡), though US Dollars are also widely accepted in tourist areas. One Australian Dollar ($1 AUD) equals roughly 296 Colones.",
+        transport: "Because roads wind through steep mountains and rainforests, driving takes longer than expected. Families usually travel via private shuttle vans, guided tour buses, or domestic puddle-jumper flights.",
+        dailySpending: "Long multi-stop flights from Australia are very expensive and eat up a large share of the budget, though local meals (sodas) and national park entry fees are reasonable.",
+        safety: "Costa Rica is the safest country in Central America and is fantastic for nature-loving kids, though families need insect repellent, rain jackets, and travel vaccines/health advice before going. Australians do not need a visa for stays up to 90 days (though a transit authorization like a US ESTA is needed if flying via the USA).",
+        attractions: ["Arenal Volcano & Hot Springs", "Monteverde Cloud Forest Zip-lines", "Manuel Antonio National Park (Sloths)", "Rainforest Wildlife Boat Safari"]
+      },
+      {
+        id: "thailand",
+        country: "Thailand",
+        city: "Chiang Mai",
+        flag: "🇹🇭",
+        style: "Adventure & Outdoors",
+        themeColor: "from-amber-600 to-orange-700",
+        badgeColor: "bg-amber-100 text-amber-800",
+        imageUrl: "https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=1200&q=80",
+        fallbackUrl: "https://placehold.co/1200x450/d97706/ffffff?text=Thailand+(Chiang+Mai)+-+Adventure+%26+Outdoors",
+        distance: "7,400 km northwest of Adelaide",
+        flightTime: "11–14 hours (1 stopover)",
+        currencyShort: "THB (฿) • $1 AUD ≈ ฿22.5",
+        visaShort: "Visa-free (free Digital Arrival Card)",
+        overview: "Thailand is a Southeast Asian nation famous for its golden Buddhist temples, tropical beaches, and friendly hospitality. Chiang Mai is the largest city in northern Thailand, nestled in a green valley surrounded by misty forested mountains, waterfalls, and ancient city walls—giving it a much calmer, more nature-focused feel than bustling Bangkok.",
+        climateIntro: "Chiang Mai has a tropical climate with three seasons: hot (March to May), rainy (June to October), and cool/dry (November to February).",
+        juneJuly: "Warm and humid (25°C to 32°C), with dramatic afternoon rain showers that keep the surrounding mountains and waterfalls lush and green.",
+        septOct: "September is quite wet, while by late October the rains ease off and temperatures become cooler and more pleasant (22°C to 30°C).",
+        cultureIntro: "Thailand is known as the 'Land of Smiles,' and Buddhism shapes daily life in Chiang Mai, which is home to more than 300 ornate golden temples (wats).",
+        language: "The official language is Thai. People working in hotels, restaurants, and tours speak basic English, and locals love it when visitors greet them with 'Sawasdee' (hello) and 'Khob khun' (thank you).",
+        food: "Northern Thailand is famous for its night markets and street food. Kid-friendly dishes include Pad Thai (stir-fried noodles), chicken satay, spring rolls, fried rice, and mango sticky rice for dessert.",
+        etiquette: "Instead of shaking hands, Thai people greet each other with a wai (pressing palms together in a prayer-like gesture and bowing slightly). The head is considered the most sacred part of the body and the feet the lowest, so never touch anyone's head or point your feet at people or Buddha statues.",
+        economyIntro: "Thailand’s economy is powered by tourism, manufacturing, electronics, and rice farming. Because the cost of living is much lower than in Australia, Chiang Mai offers incredible value for families.",
+        currency: "The Thai Baht (THB or ฿). One Australian Dollar ($1 AUD) buys roughly 22.5 Thai Baht.",
+        transport: "Visitors get around Chiang Mai using iconic red shared pickup trucks (songthaews), three-wheeled tuk-tuks, or ride-share apps like Grab.",
+        dailySpending: "Once flights are paid for, accommodation, food, and activities in Chiang Mai are very cheap—a delicious family meal at a night market can cost under $5 AUD per person, leaving plenty of budget for memorable experiences.",
+        safety: "Chiang Mai is very safe, welcoming, and easy-going for families, though families should drink bottled water and pack mosquito repellent. Australian citizens can enter Thailand visa-free for tourist stays up to 60 days (just complete the free online Thailand Digital Arrival Card before arrival).",
+        attractions: ["Ethical Elephant Sanctuary Visit", "Doi Inthanon National Park", "Wat Phra That Doi Suthep Temple", "Family Thai Cooking Class & Night Market"]
+      }
+    ];
+
+    let currentIndex = 0;
+    let currentFilter = 'all';
+
+    // Render navigation pills
+    function renderNavPills() {
+      const container = document.getElementById('nav-pills');
+      container.innerHTML = '';
+
+      destinations.forEach((dest, idx) => {
+        if (currentFilter !== 'all' && dest.style !== currentFilter) return;
+
+        const isActive = idx === currentIndex;
+        const btn = document.createElement('button');
+        btn.onclick = () => selectDestination(idx);
+        btn.className = `shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition cursor-pointer ${
+          isActive
+            ? 'bg-amber-400 text-slate-900 shadow-sm'
+            : 'bg-white/10 text-white hover:bg-white/20'
+        }`;
+        btn.innerHTML = `<span>${dest.flag}</span><span>${dest.country} (${dest.city.split(' ')[0]})</span>`;
+        container.appendChild(btn);
+      });
+    }
+
+    // Filter pills by Holiday Style
+    function filterCategory(category) {
+      currentFilter = category;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.className = 'filter-btn px-2.5 py-1 rounded-lg bg-white/10 text-white hover:bg-white/20 transition cursor-pointer';
+      });
+      const activeMap = {
+        'all': 'filter-all',
+        'Cities & Culture': 'filter-cities',
+        'Relaxation & Nature': 'filter-relax',
+        'Adventure & Outdoors': 'filter-adventure'
+      };
+      document.getElementById(activeMap[category]).className = 'filter-btn px-2.5 py-1 rounded-lg bg-white text-sky-900 font-semibold transition cursor-pointer';
+
+      // If current country doesn't match filter, switch to first matching country
+      if (category !== 'all' && destinations[currentIndex].style !== category) {
+        const firstMatch = destinations.findIndex(d => d.style === category);
+        if (firstMatch !== -1) currentIndex = firstMatch;
+      }
+      renderNavPills();
+      renderReport(currentIndex);
+    }
+
+    // Select a specific destination page
+    function selectDestination(idx) {
+      currentIndex = idx;
+      window.location.hash = destinations[idx].id;
+      renderNavPills();
+      renderReport(idx);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Navigate Next / Previous
+    function navigateRelative(delta) {
+      let nextIdx = (currentIndex + delta + destinations.length) % destinations.length;
+      selectDestination(nextIdx);
+    }
+
+    // Render the active destination information report page
+    function renderReport(idx) {
+      const d = destinations[idx];
+      const container = document.getElementById('report-container');
+
+      container.innerHTML = `
+        <!-- Hero Banner -->
+        <div class="relative h-52 sm:h-64 bg-gradient-to-r ${d.themeColor} overflow-hidden">
+          <img src="${d.imageUrl}" onerror="this.onerror=null;this.src='${d.fallbackUrl}';" alt="${d.country} - ${d.city}" class="w-full h-full object-cover opacity-55 mix-blend-luminosity" />
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/35 to-transparent"></div>
+          <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 text-white">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${d.badgeColor}">${d.style}</span>
+              <span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-xs">Destination Report #${idx + 1} of ${destinations.length}</span>
+            </div>
+            <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight flex items-center gap-3">
+              <span>${d.flag}</span>
+              <span>${d.country}: ${d.city}</span>
+            </h2>
+          </div>
+        </div>
+
+        <!-- Quick Facts Strip -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-4 sm:p-6 bg-slate-50 border-b border-slate-200">
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Distance from Adelaide</div>
+            <div class="text-sm font-bold text-slate-800">${d.distance}</div>
+          </div>
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Estimated Travel Time</div>
+            <div class="text-sm font-bold text-slate-800">${d.flightTime}</div>
+          </div>
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Currency & Exchange</div>
+            <div class="text-sm font-bold text-slate-800">${d.currencyShort}</div>
+          </div>
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
+            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Entry & Visa Rules</div>
+            <div class="text-sm font-bold text-slate-800">${d.visaShort}</div>
+          </div>
+        </div>
+
+        <!-- Report Body Sections -->
+        <div class="p-6 sm:p-8 space-y-7 text-slate-700 leading-relaxed">
+
+          <!-- 1. Overview & Geography -->
+          <section>
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm">1</span>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Overview & Geography</h3>
+            </div>
+            <p class="text-sm sm:text-base text-slate-700">${d.overview}</p>
+          </section>
+
+          <!-- 2. Climate & School Holiday Seasons -->
+          <section>
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">2</span>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Climate & School Holiday Seasons</h3>
+            </div>
+            <p class="text-sm sm:text-base text-slate-700 mb-3">${d.climateIntro}</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-sky-50/70 border border-sky-200/80 rounded-2xl p-4">
+                <div class="font-bold text-sky-900 text-sm mb-1">❄️ Option A: June / July (Adelaide Winter)</div>
+                <p class="text-sm text-slate-700">${d.juneJuly}</p>
+              </div>
+              <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4">
+                <div class="font-bold text-amber-900 text-sm mb-1">🌸 Option B: Sept / Oct (Adelaide Spring)</div>
+                <p class="text-sm text-slate-700">${d.septOct}</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Culture & Daily Life -->
+          <section>
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-sm">3</span>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Culture & Daily Life</h3>
+            </div>
+            <p class="text-sm sm:text-base text-slate-700 mb-3">${d.cultureIntro}</p>
+            <ul class="space-y-2.5 text-sm sm:text-base">
+              <li class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/60"><strong class="text-slate-900">Language:</strong> ${d.language}</li>
+              <li class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/60"><strong class="text-slate-900">Food:</strong> ${d.food}</li>
+              <li class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200/60"><strong class="text-slate-900">Etiquette & Customs:</strong> ${d.etiquette}</li>
+            </ul>
+          </section>
+
+          <!-- 4. Economy & Holiday Costs -->
+          <section>
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">4</span>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Economy & Holiday Costs (Affordability)</h3>
+            </div>
+            <p class="text-sm sm:text-base text-slate-700 mb-3">${d.economyIntro}</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              <div class="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-4">
+                <div class="font-bold text-emerald-950 text-sm mb-1">💱 Currency</div>
+                <p class="text-sm text-slate-700">${d.currency}</p>
+              </div>
+              <div class="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-4">
+                <div class="font-bold text-emerald-950 text-sm mb-1">🚆 Getting Around</div>
+                <p class="text-sm text-slate-700">${d.transport}</p>
+              </div>
+              <div class="bg-emerald-50/60 border border-emerald-200/80 rounded-2xl p-4">
+                <div class="font-bold text-emerald-950 text-sm mb-1">💵 Daily Spending</div>
+                <p class="text-sm text-slate-700">${d.dailySpending}</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 5. Family Suitability, Safety & Top Attractions -->
+          <section>
+            <div class="flex items-center gap-2.5 mb-2.5">
+              <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-sm">5</span>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">Family Suitability, Safety & Top Attractions</h3>
+            </div>
+            <p class="text-sm sm:text-base text-slate-700 mb-4">${d.safety}</p>
+            <div class="bg-slate-900 text-white rounded-2xl p-5">
+              <div class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-2.5">Must-See Family Landmarks & Activities</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                ${d.attractions.map(attr => `
+                  <div class="flex items-center gap-2.5 bg-white/10 px-3.5 py-2.5 rounded-xl text-sm font-medium">
+                    <span class="text-amber-400">★</span>
+                    <span>${attr}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </section>
+
+        </div>
+      `;
+
+      // Update footer controls
+      const prevIdx = (idx - 1 + destinations.length) % destinations.length;
+      const nextIdx = (idx + 1) % destinations.length;
+      document.getElementById('prev-label').textContent = `${destinations[prevIdx].flag} ${destinations[prevIdx].country}`;
+      document.getElementById('next-label').textContent = `${destinations[nextIdx].country} ${destinations[nextIdx].flag}`;
+      document.getElementById('page-counter').textContent = `Report ${idx + 1} of ${destinations.length} • ${d.country}`;
+    }
+
+    function toggleRatingModal() {
+      const modal = document.getElementById('rating-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    // Initialize from URL hash if present
+    window.addEventListener('DOMContentLoaded', () => {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      const foundIdx = destinations.findIndex(d => d.id === hash);
+      if (foundIdx !== -1) currentIndex = foundIdx;
+      renderNavPills();
+      renderReport(currentIndex);
+    });
+  </script>
+</body>
+</html>
